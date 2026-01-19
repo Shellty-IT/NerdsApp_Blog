@@ -1,8 +1,43 @@
-﻿@{
+﻿@model IEnumerable<PurrfectBlog.Models.BlogPost>
+
+@{
     ViewData["Title"] = "Home";
 }
 
 <div style="text-align: center; padding: 50px;">
     <h1>Welcome to Purrfect Blog 🐱</h1>
     <p>Your journey into the world of feline adventures begins here!</p>
+    <a asp-controller="BlogPost" asp-action="CreatePost" class="btn btn-primary">Create New Post</a>
+</div>
+
+<hr />
+
+<div class="row">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var post in Model)
+        {
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">@post.Title</h3>
+                        @if (!string.IsNullOrEmpty(post.Category))
+                        {
+                            <span class="badge bg-info">@post.Category</span>
+                        }
+                        <p class="card-text">@post.Content</p>
+                        <p class="text-muted">
+                            <small>Posted on: @post.CreatedDate.ToString("MMMM dd, yyyy")</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-md-12">
+            <p class="text-center">No blog posts yet. Create your first post!</p>
+        </div>
+    }
 </div>
