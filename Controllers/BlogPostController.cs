@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ShelltyBlog.Data;
-using ShelltyBlog.Models;
+using Shellty_Blog.Data;
+using Shellty_Blog.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ShelltyBlog.Controllers
+namespace Shellty_Blog.Controllers
 {
     public class BlogPostController : Controller
     {
@@ -36,7 +36,7 @@ namespace ShelltyBlog.Controllers
         {
             if (ModelState.IsValid)
             {
-                blogPost.CreatedDate = DateTime.Now;
+                blogPost.CreatedDate = DateTime.UtcNow;
                 _context.BlogPosts.Add(blogPost);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Post created successfully!";
@@ -135,7 +135,7 @@ namespace ShelltyBlog.Controllers
             existingPost.Title = updatedPost.Title;
             existingPost.Content = updatedPost.Content;
             existingPost.Category = updatedPost.Category;
-            existingPost.ModifiedDate = DateTime.Now;
+            existingPost.ModifiedDate = DateTime.UtcNow;
 
             try
             {

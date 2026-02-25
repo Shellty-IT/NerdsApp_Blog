@@ -2,13 +2,13 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ShelltyBlog.Data;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Shellty_Blog.Data;
 
 #nullable disable
 
-namespace ShelltyBlog.Migrations
+namespace Shellty_Blog.Migrations
 {
     [DbContext(typeof(BlogContext))]
     partial class BlogContextModelSnapshot : ModelSnapshot
@@ -17,36 +17,36 @@ namespace ShelltyBlog.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SHelltyBlog.Models.BlogPost", b =>
+            modelBuilder.Entity("Shellty_Blog.Models.BlogPost", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Category")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
@@ -58,7 +58,7 @@ namespace ShelltyBlog.Migrations
                             Id = 1,
                             Category = "Behavior",
                             Content = "Cats have an inexplicable love for boxes of all sizes. Whether it's a tiny shoebox or a large cardboard container, if it fits, they sits! Scientists believe this behavior is rooted in their instinct to seek out confined spaces for safety and comfort. Boxes provide cats with a sense of security and a perfect spot for ambushing unsuspecting prey (or your ankles).",
-                            CreatedDate = new DateTime(2026, 1, 9, 4, 34, 23, 78, DateTimeKind.Local).AddTicks(9102),
+                            CreatedDate = new DateTime(2025, 1, 9, 12, 0, 0, 0, DateTimeKind.Utc),
                             Title = "Why Cats Love Boxes"
                         },
                         new
@@ -66,7 +66,7 @@ namespace ShelltyBlog.Migrations
                             Id = 2,
                             Category = "Lifestyle",
                             Content = "Ever wonder what your cat does all day while you're at work? Indoor cats have their own daily routines that might surprise you. From patrolling their territory to taking strategic naps in sunny spots, cats are busy creatures. They spend about 70% of their lives sleeping, which means a 9-year-old cat has been awake for only three years of its life!",
-                            CreatedDate = new DateTime(2026, 1, 14, 4, 34, 23, 78, DateTimeKind.Local).AddTicks(9181),
+                            CreatedDate = new DateTime(2025, 1, 14, 12, 0, 0, 0, DateTimeKind.Utc),
                             Title = "The Secret Life of Indoor Cats"
                         },
                         new
@@ -74,7 +74,7 @@ namespace ShelltyBlog.Migrations
                             Id = 3,
                             Category = "Behavior",
                             Content = "Cats communicate in many ways beyond meowing. They use body language, purring, and even slow blinks to express themselves. A slow blink from your cat is actually a sign of trust and affection - it's like a kitty kiss! Tail position, ear orientation, and whisker placement all tell a story about how your cat is feeling.",
-                            CreatedDate = new DateTime(2026, 1, 17, 4, 34, 23, 78, DateTimeKind.Local).AddTicks(9251),
+                            CreatedDate = new DateTime(2025, 1, 17, 12, 0, 0, 0, DateTimeKind.Utc),
                             Title = "Understanding Cat Communication"
                         });
                 });

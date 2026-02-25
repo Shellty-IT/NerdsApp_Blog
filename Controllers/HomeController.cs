@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShelltyBlog.Data;
-using ShelltyBlog.Models;
+using Shellty_Blog.Data;
+using Shellty_Blog.Models;
 
-namespace ShelltyBlog.Controllers;
+namespace Shellty_Blog.Controllers;
 
 public class HomeController : Controller
 {
