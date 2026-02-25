@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PurrfectBlog.Data;
+using ShelltyBlog.Data;
 
 #nullable disable
 
-namespace PurrfectBlog.Migrations
+namespace ShelltyBlog.Migrations
 {
     [DbContext(typeof(BlogContext))]
     [Migration("20260119024431_AddCategoryToBlogPost")]
@@ -25,7 +25,7 @@ namespace PurrfectBlog.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("PurrfectBlog.Models.BlogPost", b =>
+            modelBuilder.Entity("ShelltyBlog.Models.BlogPost", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

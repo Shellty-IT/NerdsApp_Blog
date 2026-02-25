@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PurrfectBlog.Data;
-using PurrfectBlog.Models;
+using ShelltyBlog.Data;
+using ShelltyBlog.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace PurrfectBlog.Controllers
+namespace ShelltyBlog.Controllers
 {
     public class BlogPostController : Controller
     {

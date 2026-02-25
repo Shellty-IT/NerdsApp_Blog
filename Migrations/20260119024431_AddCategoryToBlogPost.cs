@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace PurrfectBlog.Migrations
+namespace ShelltyBlog.Migrations
 {
     /// <inheritdoc />
     public partial class AddCategoryToBlogPost : Migration

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace PurrfectBlog.Migrations
+namespace ShelltyBlog.Migrations
 {
     /// <inheritdoc />
     public partial class SeedBlogPosts : Migration

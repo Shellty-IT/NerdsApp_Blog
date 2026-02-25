@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using PurrfectBlog.Models;
+using ShelltyBlog.Models;
 
-namespace PurrfectBlog.Data
+namespace ShelltyBlog.Data
 {
     public class BlogContext : DbContext
     {

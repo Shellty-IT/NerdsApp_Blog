@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PurrfectBlog.Data;
-using PurrfectBlog.Models;
+using ShelltyBlog.Data;
+using ShelltyBlog.Models;
 
-namespace PurrfectBlog.Controllers;
+namespace ShelltyBlog.Controllers;
 
 public class HomeController : Controller
 {

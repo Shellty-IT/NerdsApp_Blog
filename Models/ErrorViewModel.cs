@@ -1,4 +1,4 @@
-namespace PurrfectBlog.Models;
+namespace ShelltyBlog.Models;
 
 public class ErrorViewModel
 {
