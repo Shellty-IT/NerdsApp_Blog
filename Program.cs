@@ -68,37 +68,10 @@ app.Run();
 
 static string GetConnectionString(IConfiguration configuration)
 {
-    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-    if (!string.IsNullOrEmpty(databaseUrl))
-    {
-        var url = databaseUrl.Split('?')[0];
-        
-        if (url.StartsWith("postgres://"))
-            url = url.Substring(12);
-        else if (url.StartsWith("postgresql://"))
-            url = url.Substring(13);
-
-        var atIndex = url.LastIndexOf('@');
-        var userInfo = url.Substring(0, atIndex).Split(':');
-        var hostPart = url.Substring(atIndex + 1);
-        
-        var slashIndex = hostPart.IndexOf('/');
-        var hostAndPort = hostPart.Substring(0, slashIndex);
-        var database = hostPart.Substring(slashIndex + 1);
-        
-        var host = hostAndPort;
-        var port = 5432;
-        
-        if (hostAndPort.Contains(':'))
-        {
-            var parts = hostAndPort.Split(':');
-            host = parts[0];
-            port = int.Parse(parts[1]);
-        }
-
-        return $"Host={host};Port={port};Database={database};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
-    }
+    if (!string.IsNullOrEmpty(connectionString))
+        return connectionString;
 
     return configuration.GetConnectionString("BlogConnection")
            ?? throw new InvalidOperationException("Connection string 'BlogConnection' not found.");
