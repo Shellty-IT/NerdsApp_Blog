@@ -72,13 +72,32 @@ static string GetConnectionString(IConfiguration configuration)
 
     if (!string.IsNullOrEmpty(databaseUrl))
     {
-        var url = databaseUrl.Replace("postgres://", "postgresql://");
+        var url = databaseUrl.Split('?')[0];
         
-        var uri = new Uri(url.Split('?')[0]);
-        var userInfo = uri.UserInfo.Split(':');
-        var port = uri.Port > 0 ? uri.Port : 5432;
+        if (url.StartsWith("postgres://"))
+            url = url.Substring(12);
+        else if (url.StartsWith("postgresql://"))
+            url = url.Substring(13);
+
+        var atIndex = url.LastIndexOf('@');
+        var userInfo = url.Substring(0, atIndex).Split(':');
+        var hostPart = url.Substring(atIndex + 1);
         
-        return $"Host={uri.Host};Port={port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+        var slashIndex = hostPart.IndexOf('/');
+        var hostAndPort = hostPart.Substring(0, slashIndex);
+        var database = hostPart.Substring(slashIndex + 1);
+        
+        var host = hostAndPort;
+        var port = 5432;
+        
+        if (hostAndPort.Contains(':'))
+        {
+            var parts = hostAndPort.Split(':');
+            host = parts[0];
+            port = int.Parse(parts[1]);
+        }
+
+        return $"Host={host};Port={port};Database={database};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
     }
 
     return configuration.GetConnectionString("BlogConnection")
