@@ -73,8 +73,8 @@ static string GetConnectionString(IConfiguration configuration)
     if (!string.IsNullOrEmpty(connectionString))
         return connectionString;
 
-    return configuration.GetConnectionString("BlogConnection")
-           ?? throw new InvalidOperationException("Connection string 'BlogConnection' not found.");
+    return configuration.GetConnectionString("DefaultConnection")
+           ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 }
 
 static async Task SeedRolesAndAdmin(IServiceProvider services)

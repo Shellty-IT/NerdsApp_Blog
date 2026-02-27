@@ -1,17 +1,24 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<Shellty_Blog.Models.ApplicationUser> SignInManager
-@inject UserManager<Shellty_Blog.Models.ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1a3050" />
     <title>@ViewData["Title"] - Shellty Blog</title>
+    
+    <link rel="icon" type="image/png" href="~/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png" />
+    <link rel="manifest" href="~/site.webmanifest" />
+    
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Shellty_Blog.styles.css" asp-append-version="true" />
 </head>
 <body>
 
@@ -24,7 +31,7 @@
         <nav class="navbar navbar-expand-sm navbar-dark navbar-custom">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <img src="~/my.png" alt="Logo" style="height: 48px; margin-right: 0px;" />
+                    <span id="navbar-logo" style="margin-right: 8px;"></span>
                     Shellty Blog
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -73,7 +80,12 @@
                                     {
                                         <li>
                                             <a class="dropdown-item" asp-controller="Admin" asp-action="Requests">
-                                                <i class="bi bi-shield-lock"></i> Admin Panel
+                                                <i class="bi bi-shield-lock"></i> Admin Requests
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Users">
+                                                <i class="bi bi-people"></i> Manage Users
                                             </a>
                                         </li>
                                         <li><hr class="dropdown-divider" /></li>
@@ -140,6 +152,10 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/logo.js" asp-append-version="true"></script>
+    <script>
+        renderLogo('navbar-logo', { width: 40, height: 40 });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
