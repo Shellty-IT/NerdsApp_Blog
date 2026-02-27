@@ -1,8 +1,8 @@
 ﻿@model Shellty_Blog.Models.BlogPost
 
 @{
-    ViewData["Title"] = "Create New Post";
-    var categories = ViewBag.Categories as List<string>;
+ViewData["Title"] = "Create New Post";
+var categories = ViewBag.Categories as List<string>;
 }
 
 <div class="row justify-content-center">
@@ -10,7 +10,7 @@
         <h2 class="section-title mb-4">Create New Post</h2>
 
         <div class="form-card">
-            <form asp-action="CreatePost" method="post">
+            <form asp-action="CreatePost" method="post" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label asp-for="Title" class="form-label">Post Title</label>
                     <input asp-for="Title" class="form-control" placeholder="Enter a catchy title..." />
@@ -23,13 +23,25 @@
                     <datalist id="categoryList">
                         @if (categories != null)
                         {
-                            @foreach (var cat in categories)
-                            {
-                                <option value="@cat"></option>
-                            }
+                        @foreach (var cat in categories)
+                        {
+                        <option value="@cat"></option>
+                        }
                         }
                     </datalist>
                     <span asp-validation-for="Category" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Cover Image</label>
+                    <input type="file" name="image" id="imageInput" class="form-control" accept=".jpg,.jpeg,.png,.webp,.gif" />
+                    <small class="text-muted">Max 2 MB. JPG, PNG, WebP or GIF.</small>
+                    <div id="imagePreview" class="mt-2" style="display: none;">
+                        <img id="previewImg" src="data:," class="img-fluid rounded-3" style="max-height: 300px;" alt="Preview" />
+                        <button type="button" id="removePreview" class="btn btn-sm btn-outline-danger mt-2">
+                            <i class="bi bi-x-lg"></i> Remove
+                        </button>
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -54,16 +66,6 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-    <script>
-        var textarea = document.getElementById('contentArea');
-        var counter = document.getElementById('wordCount');
-
-        textarea.addEventListener('input', function() {
-            var text = this.value.trim();
-            var count = text.length > 0 ? text.split(/\s+/).length : 0;
-            counter.textContent = count + ' words';
-        });
-    </script>
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script src="~/js/post-form.js" asp-append-version="true"></script>
 }

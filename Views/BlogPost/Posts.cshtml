@@ -22,9 +22,12 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="section-title">All Posts</h1>
-    <a asp-controller="BlogPost" asp-action="CreatePost" class="btn btn-primary">
-        <i class="bi bi-plus-lg"></i> Write New Post
-    </a>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-controller="BlogPost" asp-action="CreatePost" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Write New Post
+        </a>
+    }
 </div>
 
 <p class="text-muted mb-3">
@@ -70,7 +73,17 @@ else
             <div class="col-12 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-start gap-3">
+                            @if (!string.IsNullOrEmpty(post.ImageFileName))
+                            {
+                                <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id"
+                                   class="flex-shrink-0">
+                                    <img src="~/uploads/posts/@post.ImageFileName"
+                                         alt="@post.Title"
+                                         class="post-thumbnail rounded"
+                                         loading="lazy" />
+                                </a>
+                            }
                             <div class="flex-grow-1">
                                 <h4 class="card-title mb-1">
                                     <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id">
@@ -101,7 +114,7 @@ else
                                 </p>
                             </div>
                             <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id"
-                               class="btn btn-outline-primary btn-sm ms-3 flex-shrink-0">
+                               class="btn btn-outline-primary btn-sm ms-3 flex-shrink-0 align-self-center">
                                 Read <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>

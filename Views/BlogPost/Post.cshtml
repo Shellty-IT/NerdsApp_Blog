@@ -48,6 +48,16 @@
                 }
             </header>
 
+            @if (!string.IsNullOrEmpty(Model.ImageFileName))
+            {
+                <div class="post-image mb-4">
+                    <img src="~/uploads/posts/@Model.ImageFileName"
+                         alt="@Model.Title"
+                         class="img-fluid rounded-3 w-100"
+                         loading="lazy" />
+                </div>
+            }
+
             <hr />
 
             <div class="post-content my-4">
@@ -56,14 +66,17 @@
 
             <hr />
 
-            <div class="d-flex gap-2 mt-4">
-                <a asp-action="EditPost" asp-route-id="@Model.Id" class="btn btn-warning">
-                    <i class="bi bi-pencil-square"></i> Edit
-                </a>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                    <i class="bi bi-trash"></i> Delete
-                </button>
-            </div>
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="d-flex gap-2 mt-4">
+                    <a asp-action="EditPost" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </div>
+            }
         </article>
 
         <div class="d-flex justify-content-between mt-5 pt-3 border-top">
@@ -77,23 +90,28 @@
     </div>
 </div>
 
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger"></i> Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <strong>"@Model.Title"</strong>?</p>
-                <p class="text-muted mb-0">This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a asp-action="DeletePost" asp-route-id="@Model.Id" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> Delete
-                </a>
+@if (User.IsInRole("Admin"))
+{
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger"></i> Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong>"@Model.Title"</strong>?</p>
+                    <p class="text-muted mb-0">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form asp-action="DeletePost" asp-route-id="@Model.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}

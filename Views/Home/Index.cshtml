@@ -5,11 +5,19 @@
 }
 
 <div class="hero-section">
-    <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
-        <img src="~/my.png" alt="Logo" style="height: 80px;" />
+    <div class="d-flex align-items-center justify-content-start gap-0 mb-3 hero-title-row">
+        <div id="logo-container"></div>
+
+        @section Scripts {
+            <script src="~/js/logo.js"></script>
+            <script>
+                renderLogo('logo-container', { width: 260, height: 260 });
+            </script>
+        }
+
         <h1 class="mb-0">Welcome to Shellty Blog</h1>
     </div>
-    <p>Your journey into the world of feline adventures begins here!</p>
+    <p>Your adventure in learning about the shells starts here!</p>
     @if (User.IsInRole("Admin"))
     {
         <a asp-controller="BlogPost" asp-action="CreatePost" class="btn btn-light btn-lg">
@@ -26,13 +34,22 @@
         </a>
     </div>
 
-    @if (Model != null && Model.Any())
+    @if (Model.Any())
     {
         <div class="row g-4">
             @foreach (var post in Model)
             {
                 <div class="col-md-4">
                     <div class="card h-100">
+                        @if (!string.IsNullOrEmpty(post.ImageFileName))
+                        {
+                            <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id">
+                                <img src="~/uploads/posts/@post.ImageFileName"
+                                     alt="@post.Title"
+                                     class="card-img-top"
+                                     loading="lazy" />
+                            </a>
+                        }
                         <div class="card-body d-flex flex-column">
                             @if (!string.IsNullOrEmpty(post.Category))
                             {

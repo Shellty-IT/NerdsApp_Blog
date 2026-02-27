@@ -21,6 +21,7 @@ public class AdminController : Controller
     }
 
     [Authorize]
+    [HttpGet]
     public async Task<IActionResult> RequestAdmin()
     {
         var user = await _userManager.GetUserAsync(User);
@@ -46,10 +47,10 @@ public class AdminController : Controller
         return View();
     }
 
+    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize]
-    public async Task<IActionResult> RequestAdmin(string message)
+    public async Task<IActionResult> RequestAdmin([FromForm] string? message)
     {
         var user = await _userManager.GetUserAsync(User);
 
@@ -85,6 +86,7 @@ public class AdminController : Controller
     }
 
     [Authorize(Roles = "Admin")]
+    [HttpGet]
     public async Task<IActionResult> Requests()
     {
         var requests = await _context.AdminRequests
@@ -105,9 +107,9 @@ public class AdminController : Controller
         return View(requests);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Vote(int requestId, bool approve)
     {
         var currentUser = await _userManager.GetUserAsync(User);
@@ -179,4 +181,119 @@ public class AdminController : Controller
 
         return RedirectToAction("Requests");
     }
+    
+    [Authorize(Roles = "Admin")]
+[HttpGet]
+public async Task<IActionResult> Users()
+{
+    var users = await _userManager.Users
+        .OrderBy(u => u.DisplayName)
+        .ToListAsync();
+
+    var userRoles = new Dictionary<string, bool>();
+    foreach (var user in users)
+    {
+        userRoles[user.Id] = await _userManager.IsInRoleAsync(user, "Admin");
+    }
+
+    ViewBag.UserRoles = userRoles;
+    return View(users);
+}
+
+[Authorize(Roles = "Admin")]
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> DeleteUser(string userId)
+{
+    var currentUser = await _userManager.GetUserAsync(User);
+
+    if (currentUser == null)
+        return RedirectToAction("Login", "Account");
+
+    if (currentUser.Id == userId)
+    {
+        TempData["ErrorMessage"] = "You cannot delete your own account.";
+        return RedirectToAction("Users");
+    }
+
+    var userToDelete = await _userManager.FindByIdAsync(userId);
+
+    if (userToDelete == null)
+    {
+        TempData["ErrorMessage"] = "User not found.";
+        return RedirectToAction("Users");
+    }
+
+    var pendingRequests = await _context.AdminRequests
+        .Where(r => r.UserId == userId)
+        .ToListAsync();
+
+    _context.AdminRequests.RemoveRange(pendingRequests);
+
+    var approvals = await _context.AdminApprovals
+        .Where(a => a.AdminId == userId)
+        .ToListAsync();
+
+    _context.AdminApprovals.RemoveRange(approvals);
+
+    await _context.SaveChangesAsync();
+
+    var result = await _userManager.DeleteAsync(userToDelete);
+
+    if (result.Succeeded)
+    {
+        TempData["SuccessMessage"] = $"User '{userToDelete.DisplayName}' has been deleted.";
+    }
+    else
+    {
+        TempData["ErrorMessage"] = "Failed to delete user: " + string.Join(", ", result.Errors.Select(e => e.Description));
+    }
+
+    return RedirectToAction("Users");
+}
+
+[Authorize(Roles = "Admin")]
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> RemoveAdmin(string userId)
+{
+    var currentUser = await _userManager.GetUserAsync(User);
+
+    if (currentUser == null)
+        return RedirectToAction("Login", "Account");
+
+    if (currentUser.Id == userId)
+    {
+        TempData["ErrorMessage"] = "You cannot remove your own admin role.";
+        return RedirectToAction("Users");
+    }
+
+    var user = await _userManager.FindByIdAsync(userId);
+
+    if (user == null)
+    {
+        TempData["ErrorMessage"] = "User not found.";
+        return RedirectToAction("Users");
+    }
+
+    if (!await _userManager.IsInRoleAsync(user, "Admin"))
+    {
+        TempData["ErrorMessage"] = "User is not an admin.";
+        return RedirectToAction("Users");
+    }
+
+    var result = await _userManager.RemoveFromRoleAsync(user, "Admin");
+
+    if (result.Succeeded)
+    {
+        TempData["SuccessMessage"] = $"Admin role removed from '{user.DisplayName}'.";
+    }
+    else
+    {
+        TempData["ErrorMessage"] = "Failed to remove admin role.";
+    }
+
+    return RedirectToAction("Users");
+}
+    
 }

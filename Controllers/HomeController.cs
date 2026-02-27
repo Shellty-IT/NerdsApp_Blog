@@ -8,12 +8,10 @@ namespace Shellty_Blog.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
     private readonly BlogContext _context;
 
-    public HomeController(ILogger<HomeController> logger, BlogContext context)
+    public HomeController(BlogContext context)
     {
-        _logger = logger;
         _context = context;
     }
 
