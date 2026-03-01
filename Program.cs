@@ -68,13 +68,29 @@ app.Run();
 
 static string GetConnectionString(IConfiguration configuration)
 {
-    var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-    if (!string.IsNullOrEmpty(connectionString))
-        return connectionString;
+    if (!string.IsNullOrEmpty(databaseUrl))
+        return ConvertToNpgsqlConnectionString(databaseUrl);
 
     return configuration.GetConnectionString("DefaultConnection")
            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+}
+
+static string ConvertToNpgsqlConnectionString(string databaseUrl)
+{
+    if (!databaseUrl.StartsWith("postgresql://") && !databaseUrl.StartsWith("postgres://"))
+        return databaseUrl;
+
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    var username = userInfo[0];
+    var password = userInfo.Length > 1 ? userInfo[1] : string.Empty;
+    var host = uri.Host;
+    var port = uri.Port > 0 ? uri.Port : 5432;
+    var database = uri.AbsolutePath.TrimStart('/');
+
+    return $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true";
 }
 
 static async Task SeedRolesAndAdmin(IServiceProvider services)
@@ -82,7 +98,7 @@ static async Task SeedRolesAndAdmin(IServiceProvider services)
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-    string[] roles = { "Admin", "User" };
+    string[] roles = ["Admin", "User"];
 
     foreach (var role in roles)
     {
@@ -104,7 +120,8 @@ static async Task SeedRolesAndAdmin(IServiceProvider services)
             UserName = adminEmail,
             Email = adminEmail,
             DisplayName = "Administrator",
-            EmailConfirmed = true
+            EmailConfirmed = true,
+            CreatedAt = DateTime.UtcNow
         };
 
         var result = await userManager.CreateAsync(adminUser, adminPassword);
