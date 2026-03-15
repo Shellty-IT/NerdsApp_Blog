@@ -108,8 +108,14 @@ static async Task SeedRolesAndAdmin(IServiceProvider services)
         }
     }
 
-    var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL") ?? "admin@shellty.com";
-    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD") ?? "Admin123!";
+    var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+    var adminPassword = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+
+    if (string.IsNullOrEmpty(adminEmail) || string.IsNullOrEmpty(adminPassword))
+    {
+        Console.WriteLine("ADMIN_EMAIL/ADMIN_PASSWORD not set - skipping admin creation.");
+        return;
+    }
 
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
