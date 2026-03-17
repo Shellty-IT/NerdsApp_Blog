@@ -41,10 +41,10 @@
             {
                 <div class="col-md-4">
                     <div class="card h-100">
-                        @if (!string.IsNullOrEmpty(post.ImageFileName))
+                        @if (!string.IsNullOrEmpty(post.ImageContentType))
                         {
                             <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id">
-                                <img src="~/uploads/posts/@post.ImageFileName"
+                                <img src="@Url.Action("GetImage", "BlogPost", new { id = post.Id })"
                                      alt="@post.Title"
                                      class="card-img-top"
                                      loading="lazy" />
