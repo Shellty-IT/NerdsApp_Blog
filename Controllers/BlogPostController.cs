@@ -1,226 +1,158 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Shellty_Blog.Data;
 using Shellty_Blog.Models;
+using Shellty_Blog.Services;
 
-namespace Shellty_Blog.Controllers;
-
-public class BlogPostController : Controller
+namespace Shellty_Blog.Controllers
 {
-    private readonly BlogContext _context;
-    private readonly IWebHostEnvironment _environment;
-
-    private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
-    private const long MaxImageSize = 2 * 1024 * 1024;
-
-    public BlogPostController(BlogContext context, IWebHostEnvironment environment)
+    public class BlogPostController : Controller
     {
-        _context = context;
-        _environment = environment;
-    }
+        private readonly IBlogPostService _blogService;
 
-    private async Task LoadCategories()
-    {
-        ViewBag.Categories = await _context.BlogPosts
-            .Where(p => !string.IsNullOrEmpty(p.Category))
-            .Select(p => p.Category)
-            .Distinct()
-            .OrderBy(c => c)
-            .ToListAsync();
-    }
-
-    private async Task<(string? FileName, string? Error)> SaveImageAsync(IFormFile file)
-    {
-        if (file.Length > MaxImageSize)
-            return (null, "Image size must not exceed 2 MB.");
-
-        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-
-        if (!AllowedExtensions.Contains(extension))
-            return (null, "Only JPG, PNG, WebP, and GIF images are allowed.");
-
-        var uploadsDir = Path.Combine(_environment.WebRootPath, "uploads", "posts");
-        Directory.CreateDirectory(uploadsDir);
-
-        var fileName = $"{Guid.NewGuid()}{extension}";
-        var filePath = Path.Combine(uploadsDir, fileName);
-
-        await using var stream = new FileStream(filePath, FileMode.Create);
-        await file.CopyToAsync(stream);
-
-        return (fileName, null);
-    }
-
-    private void DeleteImage(string? fileName)
-    {
-        if (string.IsNullOrEmpty(fileName))
-            return;
-
-        var filePath = Path.Combine(_environment.WebRootPath, "uploads", "posts", fileName);
-
-        if (System.IO.File.Exists(filePath))
-            System.IO.File.Delete(filePath);
-    }
-
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreatePost()
-    {
-        await LoadCategories();
-        return View();
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreatePost(BlogPost blogPost, IFormFile? image)
-    {
-        if (!ModelState.IsValid)
+        public BlogPostController(IBlogPostService blogService)
         {
-            await LoadCategories();
-            return View(blogPost);
+            _blogService = blogService;
         }
 
-        blogPost.CreatedDate = DateTime.UtcNow;
-
-        if (image is { Length: > 0 })
+        [HttpGet]
+        public async Task<IActionResult> GetImage(int id)
         {
-            var (fileName, error) = await SaveImageAsync(image);
+            var (data, contentType) = await _blogService.GetImageAsync(id);
 
-            if (error != null)
+            if (data == null || string.IsNullOrEmpty(contentType))
+                return NotFound();
+
+            return File(data, contentType);
+        }
+
+        public async Task<IActionResult> Posts(string category)
+        {
+            var posts = await _blogService.GetPostsAsync(category);
+            ViewBag.Categories = await _blogService.GetCategoriesAsync();
+            ViewBag.SelectedCategory = category;
+            return View(posts);
+        }
+
+        public async Task<IActionResult> Post(int id)
+        {
+            var post = await _blogService.GetByIdAsync(id);
+            if (post == null) return View("PostNotFound");
+            return View(post);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreatePost()
+        {
+            ViewBag.Categories = await _blogService.GetCategoriesAsync();
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreatePost(BlogPost blogPost, IFormFile? imageFile)
+        {
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("image", error);
-                await LoadCategories();
+                ViewBag.Categories = await _blogService.GetCategoriesAsync();
                 return View(blogPost);
             }
 
-            blogPost.ImageFileName = fileName;
-        }
-
-        _context.BlogPosts.Add(blogPost);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Post created successfully!";
-        return RedirectToAction("Post", new { id = blogPost.Id });
-    }
-
-    public async Task<IActionResult> Posts(string? category)
-    {
-        var query = _context.BlogPosts.AsQueryable();
-
-        if (!string.IsNullOrEmpty(category))
-            query = query.Where(p => p.Category == category);
-
-        var posts = await query
-            .OrderByDescending(p => p.CreatedDate)
-            .ToListAsync();
-
-        await LoadCategories();
-        ViewBag.SelectedCategory = category;
-
-        return View(posts);
-    }
-
-    public async Task<IActionResult> Post(int id)
-    {
-        var post = await _context.BlogPosts
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (post == null)
-            return View("PostNotFound");
-
-        return View(post);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeletePost(int id)
-    {
-        var post = await _context.BlogPosts.FindAsync(id);
-
-        if (post == null)
-        {
-            TempData["ErrorMessage"] = "Post not found.";
-            return RedirectToAction("Posts");
-        }
-
-        DeleteImage(post.ImageFileName);
-        _context.BlogPosts.Remove(post);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = $"Post '{post.Title}' has been deleted successfully.";
-        return RedirectToAction("Posts");
-    }
-
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> EditPost(int id)
-    {
-        var post = await _context.BlogPosts.FindAsync(id);
-
-        if (post == null)
-            return View("PostNotFound");
-
-        await LoadCategories();
-        return View(post);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> EditPost(int id, BlogPost updatedPost, IFormFile? image, bool removeImage)
-    {
-        if (id != updatedPost.Id)
-            return NotFound();
-
-        if (!ModelState.IsValid)
-        {
-            await LoadCategories();
-            return View(updatedPost);
-        }
-
-        var existingPost = await _context.BlogPosts.FindAsync(id);
-
-        if (existingPost == null)
-            return NotFound();
-
-        existingPost.Title = updatedPost.Title;
-        existingPost.Content = updatedPost.Content;
-        existingPost.Category = updatedPost.Category;
-        existingPost.ModifiedDate = DateTime.UtcNow;
-
-        if (image is { Length: > 0 })
-        {
-            var (fileName, error) = await SaveImageAsync(image);
-
-            if (error != null)
+            if (imageFile != null && imageFile.Length > 0)
             {
-                ModelState.AddModelError("image", error);
-                updatedPost.ImageFileName = existingPost.ImageFileName;
-                await LoadCategories();
+                var error = _blogService.ValidateImage(imageFile);
+                if (error != null)
+                {
+                    ModelState.AddModelError("imageFile", error);
+                    ViewBag.Categories = await _blogService.GetCategoriesAsync();
+                    return View(blogPost);
+                }
+                await _blogService.ApplyImageAsync(blogPost, imageFile);
+            }
+
+            await _blogService.CreateAsync(blogPost);
+            TempData["SuccessMessage"] = "Post created successfully!";
+            return RedirectToAction("Post", new { id = blogPost.Id });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> EditPost(int id)
+        {
+            var post = await _blogService.GetByIdAsync(id);
+            if (post == null) return View("PostNotFound");
+
+            ViewBag.Categories = await _blogService.GetCategoriesAsync();
+            return View(post);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> EditPost(int id, BlogPost updatedPost, IFormFile? imageFile, bool removeImage = false)
+        {
+            if (id != updatedPost.Id) return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = await _blogService.GetCategoriesAsync();
                 return View(updatedPost);
             }
 
-            DeleteImage(existingPost.ImageFileName);
-            existingPost.ImageFileName = fileName;
-        }
-        else if (removeImage)
-        {
-            DeleteImage(existingPost.ImageFileName);
-            existingPost.ImageFileName = null;
+            var existingPost = await _blogService.GetByIdAsync(id);
+            if (existingPost == null) return NotFound();
+
+            existingPost.Title = updatedPost.Title;
+            existingPost.Content = updatedPost.Content;
+            existingPost.Category = updatedPost.Category;
+
+            if (removeImage)
+            {
+                _blogService.RemoveImage(existingPost);
+            }
+            else if (imageFile != null && imageFile.Length > 0)
+            {
+                var error = _blogService.ValidateImage(imageFile);
+                if (error != null)
+                {
+                    ModelState.AddModelError("imageFile", error);
+                    ViewBag.Categories = await _blogService.GetCategoriesAsync();
+                    return View(updatedPost);
+                }
+                await _blogService.ApplyImageAsync(existingPost, imageFile);
+            }
+
+            try
+            {
+                await _blogService.UpdateAsync(existingPost);
+                TempData["SuccessMessage"] = "Post updated successfully!";
+                return RedirectToAction("Post", new { id = existingPost.Id });
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "An error occurred while saving changes.");
+                ViewBag.Categories = await _blogService.GetCategoriesAsync();
+                return View(updatedPost);
+            }
         }
 
-        try
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeletePost(int id)
         {
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Post updated successfully!";
-            return RedirectToAction("Post", new { id = existingPost.Id });
-        }
-        catch (DbUpdateException)
-        {
-            ModelState.AddModelError("", "An error occurred while saving changes.");
-            await LoadCategories();
-            return View(updatedPost);
+            var deleted = await _blogService.DeleteAsync(id);
+
+            if (!deleted)
+            {
+                TempData["ErrorMessage"] = "Post not found.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Post has been deleted successfully.";
+            }
+
+            return RedirectToAction("Posts");
         }
     }
 }

@@ -71,15 +71,20 @@ else
         @foreach (var post in Model)
         {
             <div class="col-12 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start gap-3">
+                <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id" class="text-decoration-none">
+                    <div class="card post-card">
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(post.ImageContentType))
+                            {
+                                <div class="post-card-image mb-3">
+                                    <img src="@Url.Action("GetImage", "BlogPost", new { id = post.Id })"
+                                         alt="@post.Title"
+                                         class="img-fluid rounded"
+                                         loading="lazy" />
+                                </div>
+                            }
                             <div class="flex-grow-1">
-                                <h4 class="card-title mb-1">
-                                    <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id">
-                                        @post.Title
-                                    </a>
-                                </h4>
+                                <h4 class="card-title mb-1">@post.Title</h4>
                                 <p class="post-meta-item mb-2">
                                     <i class="bi bi-calendar3"></i> @post.CreatedDate.ToString("MMMM dd, yyyy")
                                     @if (!string.IsNullOrEmpty(post.Category))
@@ -103,13 +108,9 @@ else
                                     @excerpt
                                 </p>
                             </div>
-                            <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id"
-                               class="btn btn-outline-primary btn-sm ms-3 flex-shrink-0 align-self-center">
-                                Read <i class="bi bi-arrow-right"></i>
-                            </a>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         }
     </div>
