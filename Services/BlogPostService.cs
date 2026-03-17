@@ -57,14 +57,14 @@ namespace Shellty_Blog.Services
 
         public async Task CreateAsync(BlogPost post)
         {
-            post.CreatedDate = DateTime.Now;
+            post.CreatedDate = DateTime.UtcNow;
             _context.BlogPosts.Add(post);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(BlogPost post)
         {
-            post.ModifiedDate = DateTime.Now;
+            post.ModifiedDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
 
