@@ -48,10 +48,10 @@
                 }
             </header>
 
-            @if (!string.IsNullOrEmpty(Model.ImageFileName))
+            @if (!string.IsNullOrEmpty(Model.ImageContentType))
             {
                 <div class="post-image mb-4">
-                    <img src="~/uploads/posts/@Model.ImageFileName"
+                    <img src="@Url.Action("GetImage", "BlogPost", new { id = Model.Id })"
                          alt="@Model.Title"
                          class="img-fluid rounded-3 w-100"
                          loading="lazy" />

@@ -300,8 +300,7 @@ namespace Shellty_Blog.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Category")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -310,9 +309,14 @@ namespace Shellty_Blog.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ImageContentType")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("ImageData")
+                        .HasColumnType("bytea");
+
                     b.Property<string>("ImageFileName")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
@@ -325,32 +329,6 @@ namespace Shellty_Blog.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BlogPosts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Category = "Information",
-                            Content = "I created this small CMS system for an engineering academy. Here you can find current information about my activities.",
-                            CreatedDate = new DateTime(2026, 2, 28, 12, 0, 0, 0, DateTimeKind.Utc),
-                            Title = "Welcome to my shell blog! "
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Category = "Question",
-                            Content = "Ever wonder what your cat does all day while you're at work? Indoor cats have their own daily routines that might surprise you. From patrolling their territory to taking strategic naps in sunny spots, cats are busy creatures. They spend about 70% of their lives sleeping, which means a 9-year-old cat has been awake for only three years of its life!",
-                            CreatedDate = new DateTime(2025, 1, 14, 12, 0, 0, 0, DateTimeKind.Utc),
-                            Title = "The Secret Life of Indoor Cats"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Category = "Behavior",
-                            Content = "Cats communicate in many ways beyond meowing. They use body language, purring, and even slow blinks to express themselves. A slow blink from your cat is actually a sign of trust and affection - it's like a kitty kiss! Tail position, ear orientation, and whisker placement all tell a story about how your cat is feeling.",
-                            CreatedDate = new DateTime(2025, 1, 17, 12, 0, 0, 0, DateTimeKind.Utc),
-                            Title = "Understanding Cat Communication"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
