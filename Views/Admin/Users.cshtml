@@ -1,0 +1,170 @@
+﻿@model IEnumerable<Shellty_Blog.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Manage Users";
+    var userRoles = ViewBag.UserRoles as Dictionary<string, bool> ?? new Dictionary<string, bool>();
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+
+<h2 class="section-title mb-4">
+    <i class="bi bi-people"></i> Manage Users
+</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <p class="text-muted mb-3">
+            <i class="bi bi-info-circle"></i> @Model.Count() users registered
+        </p>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        var isAdmin = userRoles.GetValueOrDefault(user.Id, false);
+                        var isCurrentUser = user.Id == currentUserId;
+
+                        <tr>
+                            <td>
+                                <strong>@user.DisplayName</strong>
+                                @if (isCurrentUser)
+                                {
+                                    <span class="badge bg-secondary ms-1">You</span>
+                                }
+                            </td>
+                            <td>@user.Email</td>
+                            <td>
+                                @if (isAdmin)
+                                {
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-shield-fill"></i> Admin
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">User</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (!isCurrentUser)
+                                {
+                                    <div class="btn-group btn-group-sm">
+                                        @if (isAdmin)
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-outline-warning"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#removeAdminModal-@user.Id">
+                                                <i class="bi bi-shield-minus"></i> Remove Admin
+                                            </button>
+                                        }
+                                        <button type="button"
+                                                class="btn btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal-@user.Id">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Requests" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Requests
+    </a>
+</div>
+
+@foreach (var user in Model)
+{
+    var isCurrentUser = user.Id == currentUserId;
+    var isAdmin = userRoles.GetValueOrDefault(user.Id, false);
+
+    if (!isCurrentUser)
+    {
+        <div class="modal fade" id="deleteModal-@user.Id" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-exclamation-triangle text-danger"></i> Delete User
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete <strong>@user.DisplayName</strong>?</p>
+                        <p class="text-muted mb-0">This will remove all their data including admin requests and votes.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form asp-action="DeleteUser" method="post" class="d-inline">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        if (isAdmin)
+        {
+            <div class="modal fade" id="removeAdminModal-@user.Id" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="bi bi-shield-minus text-warning"></i> Remove Admin Role
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to remove admin privileges from <strong>@user.DisplayName</strong>?</p>
+                            <p class="text-muted mb-0">They will no longer be able to manage posts or approve requests.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form asp-action="RemoveAdmin" method="post" class="d-inline">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-shield-minus"></i> Remove Admin
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}

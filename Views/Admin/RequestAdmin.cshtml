@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Request Admin Access";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+    <div class="card shadow-sm">
+    <div class="card-body p-4">
+    <h2 class="text-center mb-4">
+    <i class="bi bi-shield-plus"></i> Request Admin Access
+    </h2>
+
+    <p class="text-muted text-center mb-4">
+    All current administrators must approve your request before you become an admin.
+    </p>
+
+    <form asp-action="RequestAdmin" method="post">
+    <div class="mb-3">
+    <label for="message" class="form-label">Why do you want to become an admin?</label>
+    <textarea name="message" id="message" class="form-control" rows="4" 
+placeholder="Tell us why you should be an administrator..." required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">
+    <i class="bi bi-send"></i> Submit Request
+    </button>
+    </form>
+    </div>
+    </div>
+    </div>
+    </div>

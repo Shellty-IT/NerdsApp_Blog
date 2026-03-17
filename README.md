@@ -1,59 +1,125 @@
-# GenericTemplate
+# Shellty Blog 🐢
 
-**[Insert a brief description of your application here. Describe its purpose, functionality, etc.]**
+A modern, containerized CMS/blog application built with .NET 8 and ASP.NET Core MVC. Created as part of the Nerds Family Engineering Academy with focus on clean code, design patterns and best practices.
 
 ## 🌐 Demo
 
-[Your Demo Link Here](http://replace-with-your-link.com)
+[Live Demo on Render](https://shellty-blog.onrender.com)
 
-**Demo Credentials (If applicable):**
-- **Username:** ReplaceThisWithUsername
-- **Password:** ReplaceThisWithPassword
+Demo Credentials:
+- **Email:** admin@shellty.com
+- **Password:** Admin123!
 
-## 📖 About this Software
+> ⚠️ First load may take ~30s due to Render free tier cold start.
 
-Provide a comprehensive explanation of your software here. Dive into its core functionalities, why you opted to create it, its target users, and its value proposition.
+## 📖 About
 
-### Features:
+Shellty Blog is a content management system where administrators can create, edit and manage blog posts with image support. The application features a unique admin approval workflow — new administrators must be unanimously accepted by all existing admins through a voting system.
 
-1. **Feature 1:** Brief description.
-2. **Feature 2:** Brief description.
-3. **...:** Continue listing out the core features of your application.
+### Features
 
-## 🖼️ Screenshots
+- **Blog Management:** create, edit and delete posts with rich content and cover images
+- **Image Upload:** upload cover images with client-side preview, server-side validation (2 MB, JPG/PNG/WebP/GIF)
+- **Category Filtering:** organize and filter posts by categories
+- **User Authentication:** registration, login and role-based authorization via ASP.NET Core Identity
+- **Admin Voting System:** unanimous approval required from all current admins to grant admin role
+- **User Management Panel:** list users, delete accounts, remove admin privileges
+- **Role-Based UI:** write/edit/delete buttons visible only to administrators
+- **Responsive Design:** modern UI with Bootstrap 5, custom CSS variables and hover effects
+- **Containerized Deployment:** Docker + Render with Neon serverless PostgreSQL
 
-To give you a visual overview of the application, here are some screenshots:
+## 🛠️ Tech Stack
 
-### [Feature or Page Name]
-![Description of Image](http://link-to-your-image.com/image1.png)
+| Layer | Technology |
+|-------|-----------|
+| Framework | .NET 8, ASP.NET Core MVC |
+| Language | C# 12 |
+| Database | PostgreSQL (Neon) |
+| ORM | Entity Framework Core 8 + Npgsql |
+| Auth | ASP.NET Core Identity |
+| Frontend | Razor Views, Bootstrap 5, Bootstrap Icons |
+| Deployment | Docker, Render |
 
-### [Another Feature or Page Name]
-![Description of Image](http://link-to-your-image.com/image2.png)
 
-Add more screenshots as needed. Ensure to replace placeholders with appropriate links and descriptions.
+## 🚀 Getting Started
 
-## ⚠️ Warning
+### Prerequisites
 
-**Changing the repository name is NOT allowed.** Renaming this repository can cause issues with the peer review feature integrated into this template. 
+- .NET 8 SDK
+- PostgreSQL (or Neon account)
+- Docker (optional)
 
-If you're planning to present this project to potential employers or external parties:
+### Local Development
 
-1. Ensure that all functionalities work as expected.
-2. **Remove this warning section** to maintain a clean and professional look.
+```bash
+git clone https://github.com/your-username/Shellty_Blog.git
+cd Shellty_Blog
 
-## ✅ Best Practices to Follow
+Update connection string in appsettings.Development.json:
 
-To ensure high-quality projects, we recommend adhering to the following best practices:
+JSON
 
-1. **Gitflow:** Always use pull requests (PRs) for introducing new features or changes. This helps in maintaining a clean commit history and enables peer reviews.
-2. **Commit Formatting:** Follow a commit convention such as Git convention or [Conventional Commits](https://www.conventionalcommits.org/). It makes the commit history readable and easy to understand.
-3. **Test Coverage:** Aim for a minimum test coverage of 80-90%. This ensures that the majority of your code is tested, reducing potential bugs and regressions.
-4. **Comprehensive README:** A well-documented README provides clarity about the project's purpose, usage, and maintenance.
-5. **Live Demo:** Always provide a live demo with login credentials (if applicable). It offers a hands-on experience of your application to users or potential employers.
-6. **Continuous Integration (CI):** Implement CI to automatically build and test your project. This ensures that your code is always in a deployable state.
-7. **Continuous Deployment (CD):** While CI is a must, having CD is a nice-to-have feature. It automates the deployment process, ensuring that the latest changes are instantly accessible to users.
-8. **Clean Code:** Avoid clutter or "junk" in your code. Ensure that your codebase is organized, commented when necessary, and follows established coding standards.
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=shellty;Username=postgres;Password=yourpassword"
+  }
+}
 
----
+Run the application:
 
-Happy coding! 💻
+Bash
+
+dotnet ef database update
+dotnet run
+
+Docker
+
+Bash
+
+docker build -t shellty-blog .
+docker run -p 10000:10000 -e DATABASE_URL="your-connection-string" shellty-blog
+
+🏗️ Architecture
+
+text
+
+Shellty_Blog/
+├── Controllers/        # MVC controllers (Home, BlogPost, Account, Admin)
+├── Models/             # Domain models and ViewModels
+├── Views/              # Razor views organized by controller
+├── Data/               # EF Core DbContext and configuration
+├── Migrations/         # EF Core database migrations
+├── wwwroot/            # Static files (CSS, JS, uploads, favicon)
+└── Program.cs          # Application entry point and service configuration
+
+Key Design Decisions
+
+    Code First approach with EF Core migrations
+    File-scoped namespaces and nullable reference types enabled
+    No comments in code — clean, self-documenting code
+    Zero compiler warnings policy
+    DateTime.UtcNow used consistently across all models and controllers
+    Anti-forgery tokens on all POST forms
+    Separated JavaScript into dedicated files
+
+✅ Best Practices
+
+    Gitflow: feature branches with pull requests
+    Commit convention: short, lowercase messages
+    Clean code: no comments, no warnings, proper naming
+    Security: role-based authorization, input validation, anti-forgery protection
+    Responsive UI: mobile-first approach with Bootstrap 5
+    Containerization: reproducible builds with Docker
+
+📋 Backlog
+
+    Comments under posts
+    Likes / favorites
+    User profile (edit display name)
+    Post search
+    Cloud image storage (Cloudinary/S3)
+    Integration tests for roles and authorization
+
+📝 License
+
+This project was created for educational purposes as part of the Nerds Family Engineering Academy.

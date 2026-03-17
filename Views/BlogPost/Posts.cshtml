@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Shellty_Blog.Models.BlogPost>
+@model IEnumerable<Shellty_Blog.Models.BlogPost>
 
 @{
     ViewData["Title"] = "All Posts";
@@ -74,16 +74,6 @@ else
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-start gap-3">
-                            @if (!string.IsNullOrEmpty(post.ImageFileName))
-                            {
-                                <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id"
-                                   class="flex-shrink-0">
-                                    <img src="~/uploads/posts/@post.ImageFileName"
-                                         alt="@post.Title"
-                                         class="post-thumbnail rounded"
-                                         loading="lazy" />
-                                </a>
-                            }
                             <div class="flex-grow-1">
                                 <h4 class="card-title mb-1">
                                     <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id">

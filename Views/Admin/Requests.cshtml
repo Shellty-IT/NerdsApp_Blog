@@ -1,0 +1,98 @@
+﻿@model IEnumerable<Shellty_Blog.Models.AdminRequest>
+
+@{
+    ViewData["Title"] = "Admin Requests";
+    var totalAdmins = (int)ViewBag.TotalAdmins;
+}
+
+<h2 class="mb-4">
+    <i class="bi bi-shield-lock"></i> Admin Requests
+</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No pending admin requests.
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var request in Model)
+        {
+            var approvalCount = request.Approvals.Count(a => a.IsApproved);
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var hasVoted = request.Approvals.Any(a => a.AdminId == currentUserId);
+
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">
+                                    <i class="bi bi-person"></i> @request.User.DisplayName
+                                </h5>
+                                <small class="text-muted">@request.User.Email</small>
+                            </div>
+                            <span class="badge bg-warning">Pending</span>
+                        </div>
+
+                        <p class="card-text">@request.Message</p>
+
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i> @request.CreatedAt.ToString("MMM dd, yyyy HH:mm")
+                            </small>
+                        </div>
+
+                        <div class="progress mb-3" style="height: 20px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: @(totalAdmins > 0 ? (approvalCount * 100 / totalAdmins) : 0)%">
+                                @approvalCount / @totalAdmins
+                            </div>
+                        </div>
+
+                        @if (request.Approvals.Any())
+                        {
+                            <div class="mb-3">
+                                <small class="text-muted">Votes:</small>
+                                @foreach (var approval in request.Approvals)
+                                {
+                                    <span class="badge @(approval.IsApproved ? "bg-success" : "bg-danger") ms-1">
+                                        @approval.Admin.DisplayName: @(approval.IsApproved ? "Yes" : "No")
+                                    </span>
+                                }
+                            </div>
+                        }
+
+                        @if (hasVoted)
+                        {
+                            <div class="alert alert-secondary mb-0 py-2">
+                                <i class="bi bi-check-circle"></i> You have already voted
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex gap-2">
+                                <form asp-action="Vote" method="post" class="flex-grow-1">
+                                    <input type="hidden" name="requestId" value="@request.Id" />
+                                    <input type="hidden" name="approve" value="true" />
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-check-lg"></i> Approve
+                                    </button>
+                                </form>
+                                <form asp-action="Vote" method="post" class="flex-grow-1">
+                                    <input type="hidden" name="requestId" value="@request.Id" />
+                                    <input type="hidden" name="approve" value="false" />
+                                    <button type="submit" class="btn btn-danger w-100">
+                                        <i class="bi bi-x-lg"></i> Reject
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,13 +1,24 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Crispy Blog</title>
+    <meta name="theme-color" content="#1a3050" />
+    <title>@ViewData["Title"] - Shellty Blog</title>
+    
+    <link rel="icon" type="image/png" href="~/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png" />
+    <link rel="manifest" href="~/site.webmanifest" />
+    
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/PurrfectBlog.styles.css" asp-append-version="true" />
 </head>
 <body>
 
@@ -20,8 +31,8 @@
         <nav class="navbar navbar-expand-sm navbar-dark navbar-custom">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <img src="~/my.png" alt="Logo" style="height: 48px; margin-right: 0px;" />
-                    Crispy Blog
+                    <span id="navbar-logo" style="margin-right: 8px;"></span>
+                    Shellty Blog
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
@@ -40,18 +51,79 @@
                                 <i class="bi bi-journals"></i> Posts
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(currentController == "BlogPost" && currentAction == "CreatePost" ? "active" : "")"
-                               asp-controller="BlogPost" asp-action="CreatePost">
-                                <i class="bi bi-pencil-square"></i> Write
-                            </a>
-                        </li>
+
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "BlogPost" && currentAction == "CreatePost" ? "active" : "")"
+                                   asp-controller="BlogPost" asp-action="CreatePost">
+                                    <i class="bi bi-pencil-square"></i> Write
+                                </a>
+                            </li>
+                        }
+
                         <li class="nav-item">
                             <a class="nav-link @(currentController == "Home" && currentAction == "Privacy" ? "active" : "")"
                                asp-controller="Home" asp-action="Privacy">
                                 <i class="bi bi-shield-check"></i> Privacy
                             </a>
                         </li>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-circle"></i> @UserManager.GetUserAsync(User).Result?.DisplayName
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Requests">
+                                                <i class="bi bi-shield-lock"></i> Admin Requests
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Users">
+                                                <i class="bi bi-people"></i> Manage Users
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="RequestAdmin">
+                                                <i class="bi bi-shield-plus"></i> Request Admin
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-box-arrow-right"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "Account" && currentAction == "Login" ? "active" : "")"
+                                   asp-controller="Account" asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(currentController == "Account" && currentAction == "Register" ? "active" : "")"
+                                   asp-controller="Account" asp-action="Register">
+                                    <i class="bi bi-person-plus"></i> Register
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -69,7 +141,7 @@
     <footer class="footer-custom">
         <div class="container text-center">
             <p class="mb-1">
-                &copy; 2026 Crispy Blog — Made with <i class="bi bi-heart-fill text-danger"></i> for shells
+                &copy; 2026 Shellty Blog — Made with <i class="bi bi-heart-fill text-danger"></i> for shells
             </p>
             <p class="mb-0">
                 <a asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
@@ -80,6 +152,10 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/logo.js" asp-append-version="true"></script>
+    <script>
+        renderLogo('navbar-logo', { width: 40, height: 40 });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

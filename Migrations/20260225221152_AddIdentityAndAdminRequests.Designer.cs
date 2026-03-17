@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Shellty_Blog.Data;
@@ -11,9 +12,11 @@ using Shellty_Blog.Data;
 namespace Shellty_Blog.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    partial class BlogContextModelSnapshot : ModelSnapshot
+    [Migration("20260225221152_AddIdentityAndAdminRequests")]
+    partial class AddIdentityAndAdminRequests
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -300,8 +303,7 @@ namespace Shellty_Blog.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Category")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -309,10 +311,6 @@ namespace Shellty_Blog.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ImageFileName")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
@@ -330,15 +328,15 @@ namespace Shellty_Blog.Migrations
                         new
                         {
                             Id = 1,
-                            Category = "Information",
-                            Content = "I created this small CMS system for an engineering academy. Here you can find current information about my activities.",
-                            CreatedDate = new DateTime(2026, 2, 28, 12, 0, 0, 0, DateTimeKind.Utc),
-                            Title = "Welcome to my shell blog! "
+                            Category = "Behavior",
+                            Content = "Cats have an inexplicable love for boxes of all sizes. Whether it's a tiny shoebox or a large cardboard container, if it fits, they sits! Scientists believe this behavior is rooted in their instinct to seek out confined spaces for safety and comfort. Boxes provide cats with a sense of security and a perfect spot for ambushing unsuspecting prey (or your ankles).",
+                            CreatedDate = new DateTime(2025, 1, 9, 12, 0, 0, 0, DateTimeKind.Utc),
+                            Title = "Why Cats Love Boxes"
                         },
                         new
                         {
                             Id = 2,
-                            Category = "Question",
+                            Category = "Lifestyle",
                             Content = "Ever wonder what your cat does all day while you're at work? Indoor cats have their own daily routines that might surprise you. From patrolling their territory to taking strategic naps in sunny spots, cats are busy creatures. They spend about 70% of their lives sleeping, which means a 9-year-old cat has been awake for only three years of its life!",
                             CreatedDate = new DateTime(2025, 1, 14, 12, 0, 0, 0, DateTimeKind.Utc),
                             Title = "The Secret Life of Indoor Cats"
