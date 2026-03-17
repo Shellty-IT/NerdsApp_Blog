@@ -71,55 +71,44 @@ else
         @foreach (var post in Model)
         {
             <div class="col-12 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-start gap-3">
+                <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id" class="text-decoration-none">
+                    <div class="card post-card">
+                        <div class="card-body">
                             @if (!string.IsNullOrEmpty(post.ImageFileName))
                             {
-                                <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id"
-                                   class="flex-shrink-0">
+                                <div class="post-card-image mb-3">
                                     <img src="~/uploads/posts/@post.ImageFileName"
                                          alt="@post.Title"
-                                         class="post-thumbnail rounded"
+                                         class="img-fluid rounded"
                                          loading="lazy" />
-                                </a>
+                                </div>
                             }
-                            <div class="flex-grow-1">
-                                <h4 class="card-title mb-1">
-                                    <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id">
-                                        @post.Title
-                                    </a>
-                                </h4>
-                                <p class="post-meta-item mb-2">
-                                    <i class="bi bi-calendar3"></i> @post.CreatedDate.ToString("MMMM dd, yyyy")
-                                    @if (!string.IsNullOrEmpty(post.Category))
-                                    {
-                                        <span class="badge badge-category ms-2">@post.Category</span>
-                                    }
-                                    @{
-                                        var words = post.Content.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
-                                        var readTime = Math.Max(1, (int)Math.Ceiling(words / 200.0));
-                                    }
-                                    <span class="ms-2 reading-time">
-                                        <i class="bi bi-clock"></i> @readTime min read
-                                    </span>
-                                </p>
-                                <p class="card-text text-muted mb-0">
-                                    @{
-                                        var excerpt = post.Content.Length > 200
-                                            ? post.Content.Substring(0, 200) + "..."
-                                            : post.Content;
-                                    }
-                                    @excerpt
-                                </p>
-                            </div>
-                            <a asp-controller="BlogPost" asp-action="Post" asp-route-id="@post.Id"
-                               class="btn btn-outline-primary btn-sm ms-3 flex-shrink-0 align-self-center">
-                                Read <i class="bi bi-arrow-right"></i>
-                            </a>
+                            <h4 class="card-title mb-1">@post.Title</h4>
+                            <p class="post-meta-item mb-2">
+                                <i class="bi bi-calendar3"></i> @post.CreatedDate.ToString("MMMM dd, yyyy")
+                                @if (!string.IsNullOrEmpty(post.Category))
+                                {
+                                    <span class="badge badge-category ms-2">@post.Category</span>
+                                }
+                                @{
+                                    var words = post.Content.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+                                    var readTime = Math.Max(1, (int)Math.Ceiling(words / 200.0));
+                                }
+                                <span class="ms-2 reading-time">
+                                    <i class="bi bi-clock"></i> @readTime min read
+                                </span>
+                            </p>
+                            <p class="card-text text-muted mb-0">
+                                @{
+                                    var excerpt = post.Content.Length > 200
+                                        ? post.Content.Substring(0, 200) + "..."
+                                        : post.Content;
+                                }
+                                @excerpt
+                            </p>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         }
     </div>
